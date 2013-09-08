@@ -4,12 +4,24 @@
  */
 
 var express = require('express');
+var mongoose = require('mongoose');
 var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
 var app = express();
+
+/* Instantiate the database connection & schema */
+    var Schema = mongoose.Schema;
+    mongoose.createConnection('mongodb://localhost/finances_development');
+    mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
+    mongoose.connection.once('open', function callback () {
+      console.log('DB connect successful!');
+    });
+
+/* Mongoose should now report the successful connection to the console! */
+    var app.models.Transaction = require('../models/TransactionModel');
 
 // all environments
 app.set('port', process.env.PORT || 3000);

@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "finances",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,6 +7,12 @@
   },
   "dependencies": {
     "express": "3.3.8",
-    "jade": "*"
+    "mongoose": "*",
+    "jade": "*",
+    "csv": "*",
+    "moment": "*",
+    "mocha": "*",
+    "mocha-mongoose": "*",
+    "should": "*"
   }
 }

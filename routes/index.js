@@ -1,77 +1,71 @@
+/* Import dependencies */
 
-/*
- * GET home page.
- */
+    var Transaction = require('../models/TransactionModel.js');
 
-var csv = require('csv');
-var fs = require('fs');
-var mongoose = require('mongoose');
-var moment = require('moment');
+    var csv = require('csv');
+    var fs = require('fs');
+    var moment = require('moment');
 
-    mongoose.connect('mongodb://localhost/financials_test');
-
-    var db = mongoose.connection;
-    db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function callback () {
-      console.log('DB connect successful!');
-    });
-
-var transactionSchema = mongoose.Schema({
-    date: Date,
-    recipient: String,
-    sum: String
-});
-
-var Transaction = mongoose.model('Transaction', transactionSchema);
+/* Index route */
 
 
-exports.index = function(req, res){
+    exports.index = function(req, res){
 
-    csv().from.path(__dirname + '/paatili.csv', {delimiter: ';', escape: '"'}).to.array(function(data){
+        /* Parse CSV file */
 
-        function printDataRow(element, index, array){
+            csv().from.path(__dirname + '/paatili.csv', {delimiter: ';', escape: '"'}).to.array(function(data){
 
-            Transaction.find({name: element[1]}, function (err, transaction) {
+                /* What to do with each row */
 
-                function handleError(err) {
-                    console.log ("Error:", err);
-                }
+                    function printDataRow(element, index, array){
 
-                if (err) return h
+                        /* For each row, check if there already is a transaction recipient with that name*/
 
-                function addNew() {
-                    var newTrans = new Transaction({ date: moment(element[0]), recipient: element[1], sum: element[2]});
+                            Transaction.find({name: element[1]}, function (err, transaction) {
 
-                    newTrans.save(function(err) {
-                        if (err) return handleError(err);
-                        console.log('Transaction for '+ element[1] + ' saved!');
-                    })
-                }
+                                function handleError(err) {
+                                    console.log ("Error:", err);
+                                }
 
-                if (transaction == element[1]){
-                    console.log('Transaction with the recipient of '+ element[1] + ' found.');
-                    // exists!
+                                if (err) return h
 
-                    if (transaction.date == element[0] && transaction.sum == element[2]) {
-                        // probably the same transaction, skip!
-                    } else {
-                        addNew();
+                                function addNew() {
+                                    var newTrans = new Transaction({ date: moment(element[0]), recipient: element[1], sum: element[2]});
+
+                                    newTrans.save(function(err) {
+                                        if (err) return handleError(err);
+                                        console.log('Transaction for '+ element[1] + ' saved!');
+                                    })
+                                }
+
+                                if (transaction == element[1]){
+                                    console.log('Transaction with the recipient of '+ element[1] + ' found.');
+                                    // exists!
+
+                                    if (transaction.date == element[0] && transaction.sum == element[2]) {
+                                        // probably the same transaction, skip!
+                                    } else {
+                                        addNew();
+                                    }
+
+                                } else  {
+                                    // does not exist!
+                                    addNew();
+
+
+
+                                } 
+                            })
                     }
 
-                } else  {
-                    // does not exist!
-                    addNew();
+                /* Loop through each row */
 
+                    data.forEach(printDataRow);
 
+            });
 
-                } 
-            })
-        }
+        /* Render the results */
 
-        data.forEach(printDataRow);
-
-    });
-
-
-    res.render('index', { title: 'Express' });
-};
+            res.render('index', { title: 'Express' });
+    
+    };
